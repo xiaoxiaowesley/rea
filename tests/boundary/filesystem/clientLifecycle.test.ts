@@ -62,6 +62,8 @@ describe("client configuration filesystem lifecycle", () => {
       "vscode",
       "grok_build",
       "omp",
+      "qoder_cli",
+      "qoder_ide",
       "grok_bot",
     ]);
     expect(

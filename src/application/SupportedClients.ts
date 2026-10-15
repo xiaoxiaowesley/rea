@@ -35,6 +35,7 @@ interface ClientPathContext {
     readonly PI_CODING_AGENT_DIR?: string | undefined;
     readonly PI_CONFIG_DIR?: string | undefined;
     readonly PI_PROFILE?: string | undefined;
+    readonly QODER_CONFIG_DIR?: string | undefined;
     readonly SAND_DATA_ROOT?: string | undefined;
     readonly XDG_CONFIG_HOME?: string | undefined;
   };
@@ -150,6 +151,25 @@ const copilotDirectory = ({ home, env }: ClientPathContext): string =>
 
 const commandCodeDirectory = ({ home }: ClientPathContext): string =>
   join(home, ".commandcode");
+
+const qoderDirectory = ({ home, env }: ClientPathContext): string =>
+  env.QODER_CONFIG_DIR ?? join(home, ".qoder");
+
+/**
+ * Qoder IDE is an Electron app that keeps its user-scope MCP servers in its
+ * application-support directory, separate from the `~/.qoder` CLI location.
+ */
+const qoderIdeDirectory = ({
+  home,
+  platform,
+  env,
+}: ClientPathContext): string => {
+  if (platform === "win32")
+    return join(env.APPDATA ?? join(home, "AppData", "Roaming"), "Qoder");
+  if (platform === "darwin")
+    return join(home, "Library", "Application Support", "Qoder");
+  return join(env.XDG_CONFIG_HOME ?? join(home, ".config"), "Qoder");
+};
 
 const opencodeDirectory = ({ home, env }: ClientPathContext): string =>
   join(env.XDG_CONFIG_HOME ?? join(home, ".config"), "opencode");
@@ -297,6 +317,28 @@ export const SUPPORTED_CLIENT_DEFINITIONS = [
     format: "omp",
   },
   {
+    name: "qoder_cli",
+    displayName: "Qoder CLI",
+    configPath: (context: ClientPathContext) =>
+      join(qoderDirectory(context), "mcp.json"),
+    markerPath: qoderDirectory,
+    format: "json",
+  },
+  {
+    name: "qoder_ide",
+    displayName: "Qoder IDE",
+    configPath: (context: ClientPathContext) =>
+      join(
+        qoderIdeDirectory(context),
+        "SharedClientCache",
+        "extension",
+        "local",
+        "mcp.json",
+      ),
+    markerPath: qoderIdeDirectory,
+    format: "json",
+  },
+  {
     name: "grok_bot",
     displayName: "Grok Bot",
     configPath: grokBotDirectory,
@@ -323,6 +365,7 @@ export const supportedClients = (
     PI_CODING_AGENT_DIR: process.env.PI_CODING_AGENT_DIR,
     PI_CONFIG_DIR: process.env.PI_CONFIG_DIR,
     PI_PROFILE: process.env.PI_PROFILE,
+    QODER_CONFIG_DIR: process.env.QODER_CONFIG_DIR,
     SAND_DATA_ROOT: process.env.SAND_DATA_ROOT,
     XDG_CONFIG_HOME: process.env.XDG_CONFIG_HOME,
   },

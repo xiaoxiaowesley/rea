@@ -138,6 +138,8 @@ listed after the table because its connector is not one of these files:
 | VS Code            | `vscode`         |
 | Grok Build         | `grok_build`     |
 | OMP                | `omp`            |
+| Qoder CLI          | `qoder_cli`      |
+| Qoder IDE          | `qoder_ide`      |
 
 For OMP, setup writes a `type: "stdio"` entry to the user-level
 `~/.omp/agent/mcp.json`. It follows `PI_CONFIG_DIR`, an absolute
